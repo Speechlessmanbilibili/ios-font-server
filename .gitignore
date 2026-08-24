@@ -1,0 +1,5 @@
+# 生成的描述文件（体积大，按需本地生成）
+profiles/
+ref/
+__pycache__/
+*.pyc

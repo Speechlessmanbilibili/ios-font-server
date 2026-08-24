@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hanlink Sans + CJK Punct Bridge 字体安装</title>
+<style>
+  body { font-family: -apple-system, "PingFang SC", sans-serif; max-width: 42em; margin: 2em auto; padding: 0 1em; line-height: 1.6; }
+  h1 { font-size: 1.4em; }
+  h2 { font-size: 1.1em; margin-top: 1.8em; }
+  a.btn { display: block; text-align: center; background: #0a84ff; color: #fff; padding: 0.7em; border-radius: 10px; text-decoration: none; margin: 0.6em 0; }
+  a.btn.small { background: #34c759; }
+  a.btn.gray { background: #8e8e93; }
+  ol { padding-left: 1.4em; }
+  .note { background: #fff3cd; border: 1px solid #ffc107; border-radius: 8px; padding: 0.8em 1em; }
+</style>
+</head>
+<body>
+<h1>Hanlink Sans + CJK Punct Bridge 字体安装</h1>
+<p>一个描述文件包含 <strong>36 个静态字体</strong>：Hanlink Sans 9 正体 + 9 斜体，CJK Punct Bridge 9 正体 + 9 斜体标点（约 190 MB，请连接 Wi-Fi 下载）。</p>
+
+<a class="btn" href="./profiles/HanlinkSans-CJKPunctBridge-All.mobileconfig">📦 下载并安装全部 36 个字体（推荐）</a>
+
+<h2>安装步骤</h2>
+<ol>
+  <li>点击上方按钮下载描述文件（Safari 会提示下载配置描述文件）。</li>
+  <li>打开「设置」→「已下载描述文件」→ 安装。</li>
+  <li>安装后在「设置 → 通用 → 字体」启用对应字体。</li>
+</ol>
+
+<div class="note">
+  <strong>🔬 测试区（排查已完成，保留备用）</strong> 以下为排查过程中生成的对照描述文件，正常安装请用上方全量包。
+</div>
+
+<h2>🔬 测试区（按顺序装，记录每个的结果）</h2>
+<p style="margin:0.3em 0"><strong>A. keyman 原版 profile</strong>（Keyman 官方发布、大量用户实测可装，用于验证你的手机环境）</p>
+<a class="btn small" href="./profiles/test-keyman-original.mobileconfig">A：keyman 原版（对照）</a>
+<p style="margin:0.3em 0"><strong>B. keyman 字体 + 我的生成器（二进制 plist）</strong></p>
+<a class="btn small" href="./profiles/test-keyman-font.mobileconfig">B：keyman 字体 + 我的生成器（二进制）</a>
+<p style="margin:0.3em 0"><strong>C. keyman 字体 + 完全复刻 keyman 结构（XML plist）</strong></p>
+<a class="btn small" href="./profiles/test-keyman-font2.mobileconfig">C：keyman 字体 + 复刻结构</a>
+<p style="margin:0.3em 0"><strong>D. 我们的字体 + 完全复刻 keyman 结构</strong></p>
+<a class="btn small" href="./profiles/test-our-font.mobileconfig">D：CJK Punct Bridge Regular + 复刻结构</a>
+<p style="margin:0.3em 0"><strong>E. keyman 原版模板 + keyman 字体（只重编码 data，其余原样）</strong></p>
+<a class="btn small" href="./profiles/test-keyman-template.mobileconfig">E：keyman 模板 + keyman 字体</a>
+<p style="margin:0.3em 0"><strong>F. keyman 原版模板 + 我们的字体（唯一变量=字体）</strong></p>
+<a class="btn small" href="./profiles/test-template-ourfont.mobileconfig">F：keyman 模板 + CJK Punct Bridge Regular</a>
+<p style="margin:0.3em 0"><strong>G. keyman 原值 + plistlib 重新序列化（值 100% 相同）</strong></p>
+<a class="btn small" href="./profiles/test-keysame.mobileconfig">G：keyman 原值 + plistlib 重序列化</a>
+<p style="margin:0.3em 0"><strong>H. keyman 模板 + 中文 ConsentText</strong></p>
+<a class="btn small" href="./profiles/test-cn-consent.mobileconfig">H：keyman 模板 + 中文 ConsentText</a>
+<p style="margin:0.3em 0"><strong>I-L. 单变量测试（基底=keyman 原值，各改一个值）</strong></p>
+<a class="btn small" href="./profiles/test-i-identifier.mobileconfig">I：改 PayloadIdentifier 为 org.silentperson 风格</a>
+<a class="btn small" href="./profiles/test-j-uuid-lower.mobileconfig">J：UUID 改小写</a>
+<a class="btn small" href="./profiles/test-k-payload-name.mobileconfig">K：payload 的 PayloadDisplayName 改为文件名</a>
+<a class="btn small" href="./profiles/test-l-top-names.mobileconfig">L：顶层名称改中文 + SilentPerson</a>
+
+<h2>① 格式验证（0.2MB，旧格式）</h2>
+<a class="btn small" href="./profiles/test-CJKPunctBridge-Regular.mobileconfig">下载：CJK Punct Bridge Regular（单字体测试）</a>
+
+<h2>② CJK Punct Bridge 全家桶（3.3MB）</h2>
+<a class="btn small" href="./profiles/CJKPunctBridge-All.mobileconfig">下载：全部 18 个静态标点（9 正体 + 9 斜体）</a>
+
+<h2>③ Hanlink Sans 两两配对（每个约 40MB，9 个）</h2>
+<a class="btn" href="./profiles/HanlinkSans-Thin+Italic.mobileconfig">Thin + Thin Italic</a>
+<a class="btn" href="./profiles/HanlinkSans-ExtraLight+Italic.mobileconfig">ExtraLight + ExtraLight Italic</a>
+<a class="btn" href="./profiles/HanlinkSans-Light+Italic.mobileconfig">Light + Light Italic</a>
+<a class="btn" href="./profiles/HanlinkSans-Regular+Italic.mobileconfig">Regular + Italic</a>
+<a class="btn" href="./profiles/HanlinkSans-Medium+Italic.mobileconfig">Medium + Medium Italic</a>
+<a class="btn" href="./profiles/HanlinkSans-SemiBold+Italic.mobileconfig">SemiBold + SemiBold Italic</a>
+<a class="btn" href="./profiles/HanlinkSans-Bold+Italic.mobileconfig">Bold + Bold Italic</a>
+<a class="btn" href="./profiles/HanlinkSans-ExtraBold+Italic.mobileconfig">ExtraBold + ExtraBold Italic</a>
+<a class="btn" href="./profiles/HanlinkSans-Black+Italic.mobileconfig">Black + Black Italic</a>
+
+<h2>安装步骤</h2>
+<ol>
+  <li>点上方按钮下载描述文件（Safari 会提示下载配置描述文件）。</li>
+  <li>打开「设置」→「已下载描述文件」→ 安装。</li>
+  <li>安装后在「设置 → 通用 → 字体」启用对应字体。</li>
+</ol>
+
+<p style="color:#8e8e93;font-size:0.85em;">描述文件在本地生成，字体数据不会上传到任何外部服务器。</p>
+</body>
+</html>
