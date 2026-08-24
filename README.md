@@ -9,7 +9,7 @@ CJK Punct Bridge 9 正体 + 9 斜体标点字体，实测一次全装成功。
 ```bash
 pip install fonttools
 
-# 1. 生成描述文件（依赖本机已有的字体静态目录）
+# 1. 生成描述文件（默认扫描两个字体仓库的静态目录）
 python generate_profile.py
 
 # 2. 启动局域网服务器（默认 0.0.0.0:8000）
@@ -19,17 +19,43 @@ python server.py
 手机 Safari 打开 `http://<电脑局域网IP>:8000/`，点页面顶部的全量包按钮，
 下载后在「设置 → 已下载描述文件 → 安装」，再到「设置 → 通用 → 字体」启用。
 
-> 描述文件默认按字重「正体 + 斜体」两两配对，另附一个 36 字体全量包。
+> 描述文件默认按字重「正体 + 斜体」两两配对，另附一个全量包。
 > 生成物在 `profiles/`（已 gitignore），按需本地生成，不提交仓库。
+
+## 命令行选择字体
+
+`generate_profile.py` 支持灵活指定要打包的字体：
+
+```bash
+python generate_profile.py                                        # 默认：全部字体
+python generate_profile.py --fonts C:/fonts /x/MyFont.ttf        # 指定目录或单个 ttf 文件
+python generate_profile.py --filter Italic                       # 只要斜体（按文件名子串，可多次 OR）
+python generate_profile.py --filter Regular --filter Bold        # 只要 Regular 和 Bold
+python generate_profile.py --name "我的字体" --out build/out      # 自定义包名与输出目录
+python generate_profile.py --no-pairs                            # 只生成全量包
+```
+
+字体来源目录可用环境变量覆盖：`HANLINK_FONT_DIR`、`CJK_PUNCT_FONT_DIR`
+（默认 `../hanlink-sans/fonts/static`、`../CJK-Punct-Bridge/fonts/static`）。
+
+## 服务器接口
+
+| 接口 | 说明 |
+| --- | --- |
+| `GET /` | 安装页：全量包、预生成分组包、自定义勾选 |
+| `GET /profiles/…` | 预生成的描述文件（`application/x-apple-aspen-config`） |
+| `GET /fonts.json` | 可用字体列表（勾选 UI 用） |
+| `GET /profiles.json` | 预生成描述文件列表 |
+| `POST /api/profile` | 按勾选字体动态生成：`{"fonts":["A.ttf","B.ttf"],"name":"…"}` → 返回 `.mobileconfig` |
 
 ## 文件说明
 
 | 文件 | 作用 |
 | --- | --- |
-| `generate_profile.py` | 从字体静态目录生成 `.mobileconfig`（二进制 plist） |
-| `server.py` | 局域网 HTTP 服务器，`.mobileconfig` 以 `application/x-apple-aspen-config` 提供 |
-| `index.html` | 安装页：全量下载 + 配对下载 + 安装步骤 |
-| `fonts/` 引用 | 脚本读取 `../hanlink-sans/fonts/static` 与 `../CJK-Punct-Bridge/fonts/static`（可改） |
+| `generate_profile.py` | 描述文件生成器：全量包 + 字重配对包，支持 `--fonts/--filter/--name` |
+| `server.py` | 局域网服务器：静态描述文件 + 动态生成 API |
+| `index.html` | 安装页：全量下载、分组包列表、自定义勾选 |
+| `fonts/` 引用 | 默认读取 `../hanlink-sans/fonts/static` 与 `../CJK-Punct-Bridge/fonts/static` |
 
 字体来源：Hanlink Sans（[Speechlessmanbilibili/Hanlink-Sans](https://github.com/Speechlessmanbilibili/Hanlink-Sans)）与
 CJK Punct Bridge（[Speechlessmanbilibili/CJK-Punct-Bridge](https://github.com/Speechlessmanbilibili/CJK-Punct-Bridge)）。
