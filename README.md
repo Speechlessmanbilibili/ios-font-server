@@ -1,26 +1,27 @@
 # iOS 字体安装服务器（Hanlink Sans + CJK Punct Bridge）
 
 通过 iOS 配置描述文件（`.mobileconfig`）在局域网内给 iPhone/iPad 安装字体。
-一个描述文件可以内嵌 **36 个静态字体**：Hanlink Sans 9 正体 + 9 斜体，
-CJK Punct Bridge 9 正体 + 9 斜体标点字体，实测一次全装成功。
+默认从相邻的 Hanlink Sans 与 CJK Punct Bridge 工作区读取最新静态字体，生成
+四个彼此独立的描述文件：标准版与 `?!` 版各一个，每个文件内含 9 个正体和
+9 个斜体。字体文件与生成的 `profiles/` 仅在本机使用，不提交到本仓库。
 
 ## 快速开始
 
 ```bash
 pip install fonttools
 
-# 1. 生成描述文件（默认扫描两个字体仓库的静态目录）
+# 1. 生成四个家族描述文件（默认扫描两个字体仓库的四个静态目录）
 python generate_profile.py
 
 # 2. 启动局域网服务器（默认 0.0.0.0:8000）
 python server.py
 ```
 
-手机 Safari 打开 `http://<电脑局域网IP>:8000/`，点页面顶部的全量包按钮，
+手机 Safari 打开 `http://<电脑局域网IP>:8000/`，点页面顶部对应的家族按钮，
 下载后在「设置 → 已下载描述文件 → 安装」，再到「设置 → 通用 → 字体」启用。
 
-> 描述文件默认按字重「正体 + 斜体」两两配对，另附一个全量包。
-> 生成物在 `profiles/`（已 gitignore），按需本地生成，不提交仓库。
+> 每个家族描述文件内含 18 个静态 TTF。生成物在 `profiles/`（已 gitignore），
+> 按需本地生成，不提交仓库。
 
 ## 命令行选择字体
 
@@ -32,11 +33,13 @@ python generate_profile.py --fonts C:/fonts /x/MyFont.ttf        # 指定目录�
 python generate_profile.py --filter Italic                       # 只要斜体（按文件名子串，可多次 OR）
 python generate_profile.py --filter Regular --filter Bold        # 只要 Regular 和 Bold
 python generate_profile.py --name "我的字体" --out build/out      # 自定义包名与输出目录
-python generate_profile.py --no-pairs                            # 只生成全量包
+python generate_profile.py --pairs                               # 额外生成同字重正体 + 斜体配对包
 ```
 
-字体来源目录可用环境变量覆盖：`HANLINK_FONT_DIR`、`CJK_PUNCT_FONT_DIR`
-（默认 `../hanlink-sans/fonts/static`、`../CJK-Punct-Bridge/fonts/static`）。
+四个字体来源目录可用环境变量覆盖：`HANLINK_FONT_DIR`、
+`HANLINK_INTERROBANG_FONT_DIR`、`CJK_PUNCT_FONT_DIR`、
+`CJK_PUNCT_INTERROBANG_FONT_DIR`。默认读取相邻仓库的 `fonts/static/` 与
+`fonts-interrobang/static/`；字体二进制不会复制或提交到服务器仓库。
 
 ## 服务器接口
 
@@ -55,7 +58,7 @@ python generate_profile.py --no-pairs                            # 只生成全�
 | `generate_profile.py` | 描述文件生成器：全量包 + 字重配对包，支持 `--fonts/--filter/--name` |
 | `server.py` | 局域网服务器：静态描述文件 + 动态生成 API |
 | `index.html` | 安装页：全量下载、分组包列表、自定义勾选 |
-| `fonts/` 引用 | 默认读取 `../hanlink-sans/fonts/static` 与 `../CJK-Punct-Bridge/fonts/static` |
+| 外部字体目录 | 默认只读取相邻字体仓库的四个静态目录，不在本仓库存放字体 |
 
 字体来源：Hanlink Sans（[Speechlessmanbilibili/Hanlink-Sans](https://github.com/Speechlessmanbilibili/Hanlink-Sans)）与
 CJK Punct Bridge（[Speechlessmanbilibili/CJK-Punct-Bridge](https://github.com/Speechlessmanbilibili/CJK-Punct-Bridge)）。
@@ -130,6 +133,8 @@ class Handler(http.server.SimpleHTTPRequestHandler):
 
 ## 许可证
 
-- 字体：Hanlink Sans 与 CJK Punct Bridge 均为 [SIL Open Font License 1.1](LICENSE)
-- 本项目工具代码同样以 OFL 1.1 发布
+- 本项目服务器、生成器、页面与文档以 [MIT License](LICENSE) 发布。
+- Hanlink Sans 与 CJK Punct Bridge 字体仍分别受其字体仓库中的
+  [SIL Open Font License 1.1](https://github.com/Speechlessmanbilibili/Hanlink-Sans/blob/main/OFL.txt)
+  与 [SIL Open Font License 1.1](https://github.com/Speechlessmanbilibili/CJK-Punct-Bridge/blob/main/OFL.txt) 约束；MIT 许可证不适用于字体二进制。
 - 排障参考了 keyman（[r.keymanweb.com](https://github.com/keymanapp/r.keymanweb.com)）公开的字体描述文件结构

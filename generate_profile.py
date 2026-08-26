@@ -2,16 +2,15 @@
 """生成 iOS 字体描述文件（.mobileconfig）。
 
 用法：
-    python generate_profile.py                         # 默认：Hanlink Sans + CJK Punct Bridge
+    python generate_profile.py                         # 默认：四个最新静态家族
     python generate_profile.py --fonts <目录或ttf文件>...   # 任意字体来源
     python generate_profile.py --out <输出目录>
 
 字体来源目录可用环境变量覆盖：
-    HANLINK_FONT_DIR、CJK_PUNCT_FONT_DIR（默认 ../hanlink-sans/fonts/static、
-    ../CJK-Punct-Bridge/fonts/static）
+    HANLINK_FONT_DIR、HANLINK_INTERROBANG_FONT_DIR、CJK_PUNCT_FONT_DIR、
+    CJK_PUNCT_INTERROBANG_FONT_DIR
 """
 import argparse
-import base64
 import os
 import plistlib
 import uuid
@@ -20,17 +19,23 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent
 OUT_DIR = Path(os.environ.get("IOS_FONT_PROFILE_OUT", ROOT / "profiles"))
 DEFAULT_FONT_DIRS = [
-    Path(os.environ.get("HANLINK_FONT_DIR", ROOT.parent / "hanlink-sans" / "fonts" / "static")),
-    Path(os.environ.get("CJK_PUNCT_FONT_DIR", ROOT.parent / "CJK-Punct-Bridge" / "fonts" / "static")),
+    Path(os.environ.get(
+        "HANLINK_FONT_DIR",
+        ROOT.parent / "Hanlink-Sans" / "fonts" / "static",
+    )),
+    Path(os.environ.get(
+        "HANLINK_INTERROBANG_FONT_DIR",
+        ROOT.parent / "Hanlink-Sans" / "fonts-interrobang" / "static",
+    )),
+    Path(os.environ.get(
+        "CJK_PUNCT_FONT_DIR",
+        ROOT.parent / "CJK-Punct-Bridge" / "fonts" / "static",
+    )),
+    Path(os.environ.get(
+        "CJK_PUNCT_INTERROBANG_FONT_DIR",
+        ROOT.parent / "CJK-Punct-Bridge" / "fonts-interrobang" / "static",
+    )),
 ]
-# Interrobang 变体（?! -> ‽）目录：存在则一并发现
-INTERROBANG_DIRS = [
-    Path(ROOT.parent / "hanlink-sans" / "fonts-interrobang" / "static"),
-    Path(ROOT.parent / "CJK-Punct-Bridge" / "fonts-interrobang" / "static"),
-]
-# Th Grotesk（Th 连字变体）
-TH_GROTESK_DIR = Path(ROOT.parent / "ThGrotesk" / "fonts" / "static")
-TH_GROTESK_PREFIX = "ThGrotesk-"
 PROFILE_ID = "org.silentperson.hanlink-sans-cjkpunct"
 
 
@@ -53,11 +58,7 @@ def display_name(path: Path) -> str:
 
 def discover_fonts(dirs=None) -> list:
     """扫描字体目录，返回 [{path, name, size}]，按文件名排序。"""
-    dirs = dirs if dirs is not None else (
-        DEFAULT_FONT_DIRS
-        + [d for d in INTERROBANG_DIRS if d.exists()]
-        + ([TH_GROTESK_DIR] if TH_GROTESK_DIR.exists() else [])
-    )
+    dirs = dirs if dirs is not None else DEFAULT_FONT_DIRS
     by_name = {}
     for d in dirs:
         d = Path(d)
@@ -117,18 +118,18 @@ def main() -> None:
     ap = argparse.ArgumentParser(
         description="生成 iOS 字体描述文件",
         epilog="示例：\n"
-               "  python generate_profile.py                                   # 默认：两个仓库全部字体\n"
+               "  python generate_profile.py                                   # 默认：四个最新静态家族\n"
                "  python generate_profile.py --fonts C:/fonts /x/My.ttf        # 指定目录或文件\n"
                "  python generate_profile.py --filter Italic                   # 只要斜体\n"
                "  python generate_profile.py --filter Regular --filter Bold    # 多个过滤（OR）\n"
                "  python generate_profile.py --name \"我的字体\" --out build/out   # 自定义名与输出目录",
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
-    ap.add_argument("--fonts", nargs="+", help="字体目录或 .ttf 文件（默认两个字体仓库的静态目录）")
+    ap.add_argument("--fonts", nargs="+", help="字体目录或 .ttf 文件（默认四个静态字体目录）")
     ap.add_argument("--filter", action="append", default=[], help="按文件名子串过滤（可多次，OR 关系）")
     ap.add_argument("--name", default=None, help="全量包的显示名（默认“全部 N 个字体”）")
     ap.add_argument("--out", type=Path, default=OUT_DIR, help="输出目录")
-    ap.add_argument("--no-pairs", action="store_true", help="不生成两两配对包（只生成全量包）")
+    ap.add_argument("--pairs", action="store_true", help="额外生成同字重的正体 + 斜体配对包")
     args = ap.parse_args()
 
     out_dir = Path(args.out)
@@ -168,7 +169,7 @@ def main() -> None:
         print(f"  {key}.mobileconfig  {len(data)/1024/1024:.1f} MB")
 
     # 两两配对：同字重的正体 + 斜体（按文件前缀分组）
-    if not args.no_pairs:
+    if args.pairs:
         by_weight = {}
         for p in fonts:
             prefix = p.stem.split("-", 1)[0]          # HanlinkSans / CJKPunctBridge

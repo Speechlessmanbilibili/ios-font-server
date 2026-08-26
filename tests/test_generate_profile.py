@@ -3,10 +3,24 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from generate_profile import discover_fonts, make_profile
+from generate_profile import DEFAULT_FONT_DIRS, discover_fonts, display_name, make_profile
 
 
 class DiscoverFontsTests(unittest.TestCase):
+    def test_default_sources_are_four_static_families(self):
+        self.assertEqual(len(DEFAULT_FONT_DIRS), 4)
+        self.assertTrue(all(path.name == "static" for path in DEFAULT_FONT_DIRS))
+
+    def test_static_font_display_names(self):
+        self.assertEqual(
+            display_name(Path("HanlinkSans-BoldItalic.ttf")),
+            "Hanlink Sans BoldItalic",
+        )
+        self.assertEqual(
+            display_name(Path("CJKPunctBridgeInterrobang-Regular.ttf")),
+            "CJK Punct Bridge ?! Regular",
+        )
+
     def test_duplicate_filename_prefers_later_source_and_profile_ids_are_unique(self):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
