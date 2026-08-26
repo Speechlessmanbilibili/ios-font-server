@@ -24,7 +24,10 @@
 <body>
 <h1>iOS 字体安装</h1>
 
-<a class="btn" href="./profiles/All.mobileconfig" id="all-btn">📦 下载并安装全部字体（推荐）</a>
+<p>每个家族一个独立描述文件，更新某个字体不用重装其他的。</p>
+
+<h2>📦 家族独立包（推荐）</h2>
+<div id="family-links">加载中…</div>
 
 <h2>🎯 自定义选择</h2>
 <div class="chips">
@@ -32,6 +35,8 @@
   <button onclick="check('none')">全不选</button>
   <button onclick="check('hanlink')">仅 Hanlink</button>
   <button onclick="check('bridge')">仅 CJK Punct</button>
+  <button onclick="check('interrobang')">仅 ?! 变体</button>
+  <button onclick="check('thgrotesk')">仅 Th Grotesk</button>
   <button onclick="check('upright')">仅正体</button>
   <button onclick="check('italic')">仅斜体</button>
 </div>
@@ -51,6 +56,13 @@
 
 <script>
 let FONTS = [];
+const FAMILIES = [
+  { key: 'HanlinkSans', label: '📦 Hanlink Sans 全家桶', desc: '标准版 · 中英混排正文字体' },
+  { key: 'CJKPunctBridge', label: '📦 CJK Punct Bridge 全家桶', desc: '标点桥接标准版' },
+  { key: 'HanlinkSansInterrobang', label: '‽ Hanlink ?! 变体', desc: '?!/!?→‽ 连字版' },
+  { key: 'CJKPunctBridgeInterrobang', label: '‽ CJK Punct Bridge ?! 变体', desc: '?!/!?→‽ 连字版' },
+  { key: 'ThGrotesk', label: '🅣 Th Grotesk', desc: 'Th 默认连字变体' },
+];
 
 async function load() {
   try {
@@ -60,19 +72,26 @@ async function load() {
     box.innerHTML = FONTS.map(f =>
       `<label><input type="checkbox" value="${f.name}" checked onchange="updateMeta()"> ${f.display} <span class="meta">(${(f.size/1048576).toFixed(1)}MB)</span></label>`
     ).join('');
-    const all = FONTS.length;
-    document.getElementById('all-btn').textContent = `📦 下载并安装全部 ${all} 个字体（推荐）`;
     updateMeta();
-    // 列出预生成的描述文件（服务器端 build 产物）
+    // 家族独立包：预定义顺序，从 profiles.json 匹配实际文件与大小
     try {
       const pr = await fetch('./profiles.json');
       const profiles = await pr.json();
-      const links = document.getElementById('pair-links');
-      links.innerHTML = profiles.map(p =>
+      const byName = Object.fromEntries(profiles.map(p => [p.name, p]));
+      const famBox = document.getElementById('family-links');
+      famBox.innerHTML = FAMILIES.map(f => {
+        const p = byName[`${f.key}.mobileconfig`];
+        if (!p) return '';
+        const mb = (p.size/1048576).toFixed(1);
+        return `<a class="btn" href="./profiles/${encodeURIComponent(p.name)}">${f.label}（${mb}MB）<br><span style="font-size:0.8em;opacity:0.85">${f.desc}</span></a>`;
+      }).join('') || '（未找到预生成描述文件，可在服务器上运行 python generate_profile.py）';
+      // 其余预生成包（两两配对等）
+      const extra = profiles.filter(p => !FAMILIES.some(f => `${f.key}.mobileconfig` === p.name));
+      document.getElementById('pair-links').innerHTML = extra.map(p =>
         `<a class="btn small" href="./profiles/${encodeURIComponent(p.name)}">${p.name.replace('.mobileconfig','')}（${(p.size/1048576).toFixed(1)}MB）</a>`
-      ).join('') || '（暂无预生成文件，可在服务器上运行 python generate_profile.py 生成）';
+      ).join('') || '（暂无其他分组包）';
     } catch (e) {
-      document.getElementById('pair-links').innerHTML = '分组包列表加载失败：' + e;
+      document.getElementById('family-links').innerHTML = '描述文件列表加载失败：' + e;
     }
   } catch (e) {
     document.getElementById('fontlist').innerHTML = '字体列表加载失败：' + e;
@@ -88,8 +107,10 @@ function check(kind) {
     const f = FONTS.find(x => x.name === i.value);
     let on = true;
     if (kind === 'none') on = false;
-    else if (kind === 'hanlink') on = f.display.startsWith('Hanlink');
+    else if (kind === 'hanlink') on = f.display.startsWith('Hanlink') && !f.display.startsWith('Th Grotesk');
     else if (kind === 'bridge') on = f.display.startsWith('CJK Punct');
+    else if (kind === 'interrobang') on = f.display.includes('?!');
+    else if (kind === 'thgrotesk') on = f.display.startsWith('Th Grotesk');
     else if (kind === 'upright') on = !/Italic$/.test(f.display) && !f.display.endsWith(' Italic');
     else if (kind === 'italic') on = /Italic/.test(f.display);
     i.checked = on;
@@ -99,7 +120,9 @@ function check(kind) {
 
 function updateMeta() {
   const n = selected().length;
-  document.getElementById('custom-meta').textContent = `已选 ${n} 个字体，生成包约 ${(n * 10.7).toFixed(0)}MB（Hanlink）或更小（CJK Punct）。`;
+  const sizeMB = FONTS.filter(f => selected().includes(f.name)).reduce((s, f) => s + f.size, 0) / 1048576;
+  document.getElementById('custom-meta').textContent =
+    `已选 ${n} 个字体，生成的描述文件约 ${(sizeMB * 0.75).toFixed(0)} MB`;
 }
 
 async function downloadSelected() {

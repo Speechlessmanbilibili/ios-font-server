@@ -23,15 +23,29 @@ DEFAULT_FONT_DIRS = [
     Path(os.environ.get("HANLINK_FONT_DIR", ROOT.parent / "hanlink-sans" / "fonts" / "static")),
     Path(os.environ.get("CJK_PUNCT_FONT_DIR", ROOT.parent / "CJK-Punct-Bridge" / "fonts" / "static")),
 ]
+# Interrobang 变体（?! -> ‽）目录：存在则一并发现
+INTERROBANG_DIRS = [
+    Path(ROOT.parent / "hanlink-sans" / "fonts-interrobang" / "static"),
+    Path(ROOT.parent / "CJK-Punct-Bridge" / "fonts-interrobang" / "static"),
+]
+# Th Grotesk（Th 连字变体）
+TH_GROTESK_DIR = Path(ROOT.parent / "ThGrotesk" / "fonts" / "static")
+TH_GROTESK_PREFIX = "ThGrotesk-"
 PROFILE_ID = "org.silentperson.hanlink-sans-cjkpunct"
 
 
 def display_name(path: Path) -> str:
     name = path.stem
-    if name.startswith("HanlinkSans-"):
+    if name.startswith("HanlinkSansInterrobang"):
+        family, style = "Hanlink Sans ?!", name[len("HanlinkSansInterrobang-"):]
+    elif name.startswith("CJKPunctBridgeInterrobang"):
+        family, style = "CJK Punct Bridge ?!", name[len("CJKPunctBridgeInterrobang-"):]
+    elif name.startswith("HanlinkSans"):
         family, style = "Hanlink Sans", name[len("HanlinkSans-"):]
-    elif name.startswith("CJKPunctBridge-"):
+    elif name.startswith("CJKPunctBridge"):
         family, style = "CJK Punct Bridge", name[len("CJKPunctBridge-"):]
+    elif name.startswith("ThGrotesk"):
+        family, style = "Th Grotesk", name[len("ThGrotesk-"):]
     else:
         family, style = "Custom Font", name
     return f"{family} {style}".replace("  ", " ")
@@ -39,7 +53,11 @@ def display_name(path: Path) -> str:
 
 def discover_fonts(dirs=None) -> list:
     """扫描字体目录，返回 [{path, name, size}]，按文件名排序。"""
-    dirs = dirs if dirs is not None else DEFAULT_FONT_DIRS
+    dirs = dirs if dirs is not None else (
+        DEFAULT_FONT_DIRS
+        + [d for d in INTERROBANG_DIRS if d.exists()]
+        + ([TH_GROTESK_DIR] if TH_GROTESK_DIR.exists() else [])
+    )
     out = []
     for d in dirs:
         d = Path(d)
@@ -125,11 +143,22 @@ def main() -> None:
         raise SystemExit("过滤后没有字体")
     print(f"发现 {len(fonts)} 个字体")
 
-    # 全量包（放页面最顶部）
-    desc = args.name or f"全部 {len(fonts)} 个字体"
-    all_bytes = make_profile("All", fonts, desc)
-    (out_dir / "All.mobileconfig").write_bytes(all_bytes)
-    print(f"  All.mobileconfig  {len(all_bytes)/1024/1024:.1f} MB")
+    # 全量包：每个家族独立一个描述文件，更新一个不用重装另一个。
+    # 前缀按长短排序匹配（Interrobang 文件名以标准前缀开头，必须先匹配）。
+    PACK_GROUPS = [
+        ("HanlinkSansInterrobang", "HanlinkSansInterrobang-", "Hanlink Sans ?!"),
+        ("CJKPunctBridgeInterrobang", "CJKPunctBridgeInterrobang-", "CJK Punct Bridge ?!"),
+        ("HanlinkSans", "HanlinkSans-", "Hanlink Sans"),
+        ("CJKPunctBridge", "CJKPunctBridge-", "CJK Punct Bridge"),
+        ("ThGrotesk", "ThGrotesk-", "Th Grotesk"),
+    ]
+    for key, prefix, label in PACK_GROUPS:
+        members = [p for p in fonts if p.name.startswith(prefix)]
+        if not members:
+            continue
+        data = make_profile(key, members, f"{label} 全部 {len(members)} 个字体")
+        (out_dir / f"{key}.mobileconfig").write_bytes(data)
+        print(f"  {key}.mobileconfig  {len(data)/1024/1024:.1f} MB")
 
     # 两两配对：同字重的正体 + 斜体（按文件前缀分组）
     if not args.no_pairs:
