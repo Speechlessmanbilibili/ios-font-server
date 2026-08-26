@@ -58,16 +58,23 @@ def discover_fonts(dirs=None) -> list:
         + [d for d in INTERROBANG_DIRS if d.exists()]
         + ([TH_GROTESK_DIR] if TH_GROTESK_DIR.exists() else [])
     )
-    out = []
+    by_name = {}
     for d in dirs:
         d = Path(d)
         if d.is_dir():
-            out.extend(p for p in sorted(d.glob("*.ttf")))
+            candidates = sorted(d.glob("*.ttf"))
         elif d.is_file() and d.suffix == ".ttf":
-            out.append(d)
-    if not out:
+            candidates = [d]
+        else:
+            candidates = []
+        for path in candidates:
+            # PayloadIdentifier is derived from the filename stem, so duplicate
+            # filenames must resolve to one source. Later, dedicated directories
+            # intentionally override earlier compatibility/build directories.
+            by_name[path.name] = path
+    if not by_name:
         raise SystemExit(f"未找到字体：{dirs}")
-    return sorted(set(out), key=lambda p: p.name)
+    return sorted(by_name.values(), key=lambda p: p.name)
 
 
 def make_profile(name: str, fonts: list, description: str) -> bytes:
