@@ -102,7 +102,6 @@ def make_profile(name: str, fonts: list, description: str) -> bytes:
             "Font": path.read_bytes(),
         })
     profile = {
-        "ConsentText": {"default": f"安装此描述文件以在所有应用中启用 {description}。"},
         "PayloadType": "Configuration",
         "PayloadVersion": 1,
         "PayloadIdentifier": f"{PROFILE_ID}.{name}",

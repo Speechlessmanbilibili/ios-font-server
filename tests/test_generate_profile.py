@@ -42,6 +42,7 @@ class DiscoverFontsTests(unittest.TestCase):
 
             self.assertEqual(fonts, [preferred])
             profile = plistlib.loads(make_profile("test", fonts, "test"))
+            self.assertNotIn("ConsentText", profile)
             identifiers = [item["PayloadIdentifier"] for item in profile["PayloadContent"]]
             self.assertEqual(len(identifiers), len(set(identifiers)))
 
