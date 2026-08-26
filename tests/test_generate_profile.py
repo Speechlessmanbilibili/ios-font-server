@@ -7,8 +7,8 @@ from generate_profile import DEFAULT_FONT_DIRS, discover_fonts, display_name, ma
 
 
 class DiscoverFontsTests(unittest.TestCase):
-    def test_default_sources_are_four_static_families(self):
-        self.assertEqual(len(DEFAULT_FONT_DIRS), 4)
+    def test_default_sources_are_five_static_families(self):
+        self.assertEqual(len(DEFAULT_FONT_DIRS), 5)
         self.assertTrue(all(path.name == "static" for path in DEFAULT_FONT_DIRS))
 
     def test_static_font_display_names(self):
@@ -19,6 +19,10 @@ class DiscoverFontsTests(unittest.TestCase):
         self.assertEqual(
             display_name(Path("CJKPunctBridgeInterrobang-Regular.ttf")),
             "CJK Punct Bridge ?! Regular",
+        )
+        self.assertEqual(
+            display_name(Path("ThGrotesk-SemiBold.ttf")),
+            "Th Grotesk SemiBold",
         )
 
     def test_duplicate_filename_prefers_later_source_and_profile_ids_are_unique(self):

@@ -24,7 +24,7 @@
 <body>
 <h1>iOS 字体安装</h1>
 
-<p>四个家族各用一个独立描述文件，每个文件内含 9 个正体与 9 个斜体静态字体。</p>
+<p>五个家族各用一个独立描述文件，每个文件内含 9 个正体与 9 个斜体静态字体。</p>
 
 <h2>📦 家族独立包（推荐）</h2>
 <div id="family-links">加载中…</div>
@@ -36,6 +36,7 @@
   <button onclick="check('hanlink')">仅 Hanlink</button>
   <button onclick="check('bridge')">仅 CJK Punct</button>
   <button onclick="check('interrobang')">仅 ?! 变体</button>
+  <button onclick="check('thgrotesk')">仅 Th Grotesk</button>
   <button onclick="check('upright')">仅正体</button>
   <button onclick="check('italic')">仅斜体</button>
 </div>
@@ -60,6 +61,7 @@ const FAMILIES = [
   { key: 'CJKPunctBridge', label: '📦 CJK Punct Bridge 全家桶', desc: '标点桥接标准版' },
   { key: 'HanlinkSansInterrobang', label: '‽ Hanlink ?! 变体', desc: '?!/!?→‽ 连字版' },
   { key: 'CJKPunctBridgeInterrobang', label: '‽ CJK Punct Bridge ?! 变体', desc: '?!/!?→‽ 连字版' },
+  { key: 'ThGrotesk', label: '🅣 Th Grotesk', desc: 'Th 默认连字变体 v1.0.1' },
 ];
 
 async function load() {
@@ -108,6 +110,7 @@ function check(kind) {
     else if (kind === 'hanlink') on = f.display.startsWith('Hanlink');
     else if (kind === 'bridge') on = f.display.startsWith('CJK Punct');
     else if (kind === 'interrobang') on = f.display.includes('?!');
+    else if (kind === 'thgrotesk') on = f.display.startsWith('Th Grotesk');
     else if (kind === 'upright') on = !/Italic$/.test(f.display) && !f.display.endsWith(' Italic');
     else if (kind === 'italic') on = /Italic/.test(f.display);
     i.checked = on;
