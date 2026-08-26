@@ -13,7 +13,7 @@ pip install fonttools
 # 1. 生成四个家族描述文件（默认扫描两个字体仓库的四个静态目录）
 python generate_profile.py
 
-# 2. 启动局域网服务器（默认 0.0.0.0:8000）
+# 2. 启动局域网服务器（默认 0.0.0.0:8765）
 python server.py
 ```
 

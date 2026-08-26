@@ -17,7 +17,7 @@ import urllib.parse
 from generate_profile import discover_fonts, display_name, make_profile
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
-PORT = int(os.environ.get("FONT_SERVER_PORT", "8000"))
+PORT = int(os.environ.get("FONT_SERVER_PORT", "8765"))
 
 
 class Handler(http.server.SimpleHTTPRequestHandler):
