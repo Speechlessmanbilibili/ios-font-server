@@ -1,9 +1,10 @@
-# iOS 字体安装服务器（Hanlink Sans + CJK Punct Bridge + Th Grotesk）
+# iOS 字体安装服务器
 
 通过 iOS 配置描述文件（`.mobileconfig`）在局域网内给 iPhone/iPad 安装字体。
-默认从相邻的 Hanlink Sans、CJK Punct Bridge 与 ThGrotesk 工作区读取最新
-静态字体，生成五个彼此独立的描述文件：Hanlink 和 CJK Punct 的标准版与
-`?!` 版各一个，Th Grotesk v1.0.1 一个；每个文件内含 9 个正体和 9 个斜体。
+默认从相邻的 Hanlink Sans、Hanlink Interrobang、CJK Punct Bridge、
+Interrobang Bridge 与 ThGrotesk 工作区读取最新静态字体，生成六个彼此独立
+的描述文件：Hanlink/CJK Punct 的标准版与 `?!` 版各一个，独立的西文
+Interrobang Bridge 一个，Th Grotesk 一个；每个文件内含 9 个正体和 9 个斜体。
 字体文件与生成的 `profiles/` 仅在本机使用，不提交到本仓库。
 
 ## 快速开始
@@ -11,14 +12,14 @@
 ```bash
 pip install fonttools
 
-# 1. 生成五个家族描述文件（默认扫描三个字体仓库的五个静态目录）
+# 1. 生成六个家族描述文件（默认扫描四个字体仓库的六个静态目录）
 python generate_profile.py
 
 # 2. 启动局域网服务器（默认 0.0.0.0:8765）
 python server.py
 ```
 
-手机 Safari 打开 `http://<电脑局域网IP>:8000/`，点页面顶部对应的家族按钮，
+手机 Safari 打开 `http://<电脑局域网IP>:8765/`，点页面顶部对应的家族按钮，
 下载后在「设置 → 已下载描述文件 → 安装」，再到「设置 → 通用 → 字体」启用。
 
 > 每个家族描述文件内含 18 个静态 TTF。生成物在 `profiles/`（已 gitignore），
@@ -37,10 +38,10 @@ python generate_profile.py --name "我的字体" --out build/out      # 自定�
 python generate_profile.py --pairs                               # 额外生成同字重正体 + 斜体配对包
 ```
 
-五个字体来源目录可用环境变量覆盖：`HANLINK_FONT_DIR`、
+六个字体来源目录可用环境变量覆盖：`HANLINK_FONT_DIR`、
 `HANLINK_INTERROBANG_FONT_DIR`、`CJK_PUNCT_FONT_DIR`、
-`CJK_PUNCT_INTERROBANG_FONT_DIR`、`TH_GROTESK_FONT_DIR`。默认读取相邻
-仓库的 `fonts/static/` 与 `fonts-interrobang/static/`；字体二进制不会复制
+`CJK_PUNCT_INTERROBANG_FONT_DIR`、`INTERROBANG_BRIDGE_FONT_DIR`、
+`TH_GROTESK_FONT_DIR`。默认读取相邻仓库的静态输出目录；字体二进制不会复制
 或提交到服务器仓库。
 
 ## 服务器接口
@@ -60,9 +61,10 @@ python generate_profile.py --pairs                               # 额外生成�
 | `generate_profile.py` | 描述文件生成器：全量包 + 字重配对包，支持 `--fonts/--filter/--name` |
 | `server.py` | 局域网服务器：静态描述文件 + 动态生成 API |
 | `index.html` | 安装页：全量下载、分组包列表、自定义勾选 |
-| 外部字体目录 | 默认只读取相邻字体仓库的五个静态目录，不在本仓库存放字体 |
+| 外部字体目录 | 默认只读取相邻字体仓库的六个静态目录，不在本仓库存放字体 |
 
 字体来源：Hanlink Sans（[Speechlessmanbilibili/Hanlink-Sans](https://github.com/Speechlessmanbilibili/Hanlink-Sans)）、
+Hanlink ?!（[Speechlessmanbilibili/Hanlink-Interrobang](https://github.com/Speechlessmanbilibili/Hanlink-Interrobang)）、
 CJK Punct Bridge（[Speechlessmanbilibili/CJK-Punct-Bridge](https://github.com/Speechlessmanbilibili/CJK-Punct-Bridge)）与
 Th Grotesk（[Speechlessmanbilibili/ThGrotesk](https://github.com/Speechlessmanbilibili/ThGrotesk)）。
 

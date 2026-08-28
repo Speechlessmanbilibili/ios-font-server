@@ -2,13 +2,14 @@
 """生成 iOS 字体描述文件（.mobileconfig）。
 
 用法：
-    python generate_profile.py                         # 默认：五个最新静态家族
+    python generate_profile.py                         # 默认：六个最新静态家族
     python generate_profile.py --fonts <目录或ttf文件>...   # 任意字体来源
     python generate_profile.py --out <输出目录>
 
 字体来源目录可用环境变量覆盖：
     HANLINK_FONT_DIR、HANLINK_INTERROBANG_FONT_DIR、CJK_PUNCT_FONT_DIR、
-    CJK_PUNCT_INTERROBANG_FONT_DIR、TH_GROTESK_FONT_DIR
+    CJK_PUNCT_INTERROBANG_FONT_DIR、INTERROBANG_BRIDGE_FONT_DIR、
+    TH_GROTESK_FONT_DIR
 """
 import argparse
 import os
@@ -25,7 +26,7 @@ DEFAULT_FONT_DIRS = [
     )),
     Path(os.environ.get(
         "HANLINK_INTERROBANG_FONT_DIR",
-        ROOT.parent / "Hanlink-Sans" / "fonts-interrobang" / "static",
+        ROOT.parent / "Hanlink-Interrobang" / "fonts-interrobang" / "static",
     )),
     Path(os.environ.get(
         "CJK_PUNCT_FONT_DIR",
@@ -34,6 +35,10 @@ DEFAULT_FONT_DIRS = [
     Path(os.environ.get(
         "CJK_PUNCT_INTERROBANG_FONT_DIR",
         ROOT.parent / "CJK-Punct-Bridge" / "fonts-interrobang" / "static",
+    )),
+    Path(os.environ.get(
+        "INTERROBANG_BRIDGE_FONT_DIR",
+        ROOT.parent / "CJK-Punct-Bridge" / "fonts-interrobang-bridge" / "static",
     )),
     Path(os.environ.get(
         "TH_GROTESK_FONT_DIR",
@@ -53,6 +58,8 @@ def display_name(path: Path) -> str:
         family, style = "Hanlink Sans", name[len("HanlinkSans-"):]
     elif name.startswith("CJKPunctBridge"):
         family, style = "CJK Punct Bridge", name[len("CJKPunctBridge-"):]
+    elif name.startswith("InterrobangBridge"):
+        family, style = "Interrobang Bridge", name[len("InterrobangBridge-"):]
     elif name.startswith("ThGrotesk"):
         family, style = "Th Grotesk", name[len("ThGrotesk-"):]
     else:
@@ -121,14 +128,14 @@ def main() -> None:
     ap = argparse.ArgumentParser(
         description="生成 iOS 字体描述文件",
         epilog="示例：\n"
-               "  python generate_profile.py                                   # 默认：五个最新静态家族\n"
+               "  python generate_profile.py                                   # 默认：六个最新静态家族\n"
                "  python generate_profile.py --fonts C:/fonts /x/My.ttf        # 指定目录或文件\n"
                "  python generate_profile.py --filter Italic                   # 只要斜体\n"
                "  python generate_profile.py --filter Regular --filter Bold    # 多个过滤（OR）\n"
                "  python generate_profile.py --name \"我的字体\" --out build/out   # 自定义名与输出目录",
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
-    ap.add_argument("--fonts", nargs="+", help="字体目录或 .ttf 文件（默认五个静态字体目录）")
+    ap.add_argument("--fonts", nargs="+", help="字体目录或 .ttf 文件（默认六个静态字体目录）")
     ap.add_argument("--filter", action="append", default=[], help="按文件名子串过滤（可多次，OR 关系）")
     ap.add_argument("--name", default=None, help="全量包的显示名（默认“全部 N 个字体”）")
     ap.add_argument("--out", type=Path, default=OUT_DIR, help="输出目录")
@@ -161,6 +168,7 @@ def main() -> None:
         ("CJKPunctBridgeInterrobang", "CJKPunctBridgeInterrobang-", "CJK Punct Bridge ?!"),
         ("HanlinkSans", "HanlinkSans-", "Hanlink Sans"),
         ("CJKPunctBridge", "CJKPunctBridge-", "CJK Punct Bridge"),
+        ("InterrobangBridge", "InterrobangBridge-", "Interrobang Bridge"),
         ("ThGrotesk", "ThGrotesk-", "Th Grotesk"),
     ]
     for key, prefix, label in PACK_GROUPS:

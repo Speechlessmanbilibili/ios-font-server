@@ -7,9 +7,10 @@ from generate_profile import DEFAULT_FONT_DIRS, discover_fonts, display_name, ma
 
 
 class DiscoverFontsTests(unittest.TestCase):
-    def test_default_sources_are_five_static_families(self):
-        self.assertEqual(len(DEFAULT_FONT_DIRS), 5)
+    def test_default_sources_are_six_static_families(self):
+        self.assertEqual(len(DEFAULT_FONT_DIRS), 6)
         self.assertTrue(all(path.name == "static" for path in DEFAULT_FONT_DIRS))
+        self.assertEqual(DEFAULT_FONT_DIRS[1].parents[1].name, "Hanlink-Interrobang")
 
     def test_static_font_display_names(self):
         self.assertEqual(
@@ -23,6 +24,10 @@ class DiscoverFontsTests(unittest.TestCase):
         self.assertEqual(
             display_name(Path("ThGrotesk-SemiBold.ttf")),
             "Th Grotesk SemiBold",
+        )
+        self.assertEqual(
+            display_name(Path("InterrobangBridge-BoldItalic.ttf")),
+            "Interrobang Bridge BoldItalic",
         )
 
     def test_duplicate_filename_prefers_later_source_and_profile_ids_are_unique(self):
