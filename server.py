@@ -13,6 +13,7 @@ import json
 import os
 import socketserver
 import urllib.parse
+from datetime import datetime
 
 from generate_profile import discover_fonts, display_name, make_profile
 
@@ -36,6 +37,9 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             return
         if parsed.path == "/profiles.json":
             self._send_json(self._profile_list())
+            return
+        if parsed.path == "/status.json":
+            self._send_json(self._status())
             return
         super().do_GET()
 
@@ -87,6 +91,23 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                 path = os.path.join(profiles_dir, name)
                 out.append({"name": name, "size": os.path.getsize(path)})
         return out
+
+    def _status(self):
+        """返回页面与预生成描述文件中最新的实际修改时间。"""
+        paths = [os.path.join(ROOT, "index.html")]
+        profiles_dir = os.path.join(ROOT, "profiles")
+        if os.path.isdir(profiles_dir):
+            paths.extend(
+                os.path.join(profiles_dir, name)
+                for name in os.listdir(profiles_dir)
+                if name.endswith(".mobileconfig")
+            )
+        modified = max(os.path.getmtime(path) for path in paths if os.path.isfile(path))
+        return {
+            "modified": datetime.fromtimestamp(modified).astimezone().isoformat(
+                timespec="seconds"
+            )
+        }
 
     def _send_json(self, obj):
         data = json.dumps(obj, ensure_ascii=False).encode("utf-8")
