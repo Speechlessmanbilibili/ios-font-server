@@ -74,10 +74,10 @@ def main() -> None:
     )
     write_profile(
         "落霞孤鹜字体合集（Word Regular兼容版，8款）.mobileconfig",
-        "collection8-word-regular-v2",
+        "collection8-word-regular-v3",
         WORD_REGULAR_FONTS,
         "落霞孤鹜字体合集（Word Regular兼容版8款）",
-        "org.silentperson.lxgw-word-regular-v2",
+        "org.silentperson.lxgw-word-regular-v3",
     )
 
 
