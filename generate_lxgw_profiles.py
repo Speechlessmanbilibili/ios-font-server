@@ -59,7 +59,9 @@ def write_profile(
         profile_id=profile_id,
     )
     path = OUT_DIR / filename
-    path.write_bytes(data)
+    temporary = path.with_suffix(".tmp.mobileconfig")
+    temporary.write_bytes(data)
+    temporary.replace(path)
     print(f"{path.name}  {len(font_names)}款  {len(data) / 1024 / 1024:.1f} MB")
 
 

@@ -33,7 +33,7 @@ def make_compatible_font(source: Path, destination: Path) -> None:
     # 直接更新每条既有记录，保留原平台、编码和语言。这样中文名及源字体中
     # 可能存在的其他本地化名称不会被英文记录取代。
     for record in names.names:
-        if record.nameID in (1, 3, 4):
+        if record.nameID in (3, 4):
             record.string = with_regular(record.toUnicode()).encode(record.getEncoding())
         elif record.nameID == 6:
             record.string = with_regular(
