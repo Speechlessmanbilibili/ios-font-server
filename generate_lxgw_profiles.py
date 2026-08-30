@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""从服务器字体副本生成落霞孤鹜原版与 Word Regular 兼容版描述文件。"""
+"""从服务器字体副本生成落霞孤鹜合集与 Word Regular 兼容版描述文件。"""
 from pathlib import Path
 
 from generate_profile import ROOT, make_profile
@@ -8,15 +8,15 @@ from generate_profile import ROOT, make_profile
 FONT_DIR = ROOT / "fonts" / "lxgw-ios"
 OUT_DIR = ROOT / "profiles"
 
-ORIGINAL_FONTS = [
-    "LXGWWenKaiMonoScreen.ttf",
-    "LXGWWenKaiMonoGBScreen.ttf",
-    "LXGWWenKaiGBScreen.ttf",
-    "LXGWWenKaiScreen.ttf",
-    "LXGWNeoZhiSongScreen.ttf",
-    "LXGWNeoXiHeiScreenFull.ttf",
-    "LXGWNeoZhiSongScreenFull.ttf",
-    "LXGWNeoXiHeiScreen.ttf",
+COLLECTION_FONTS = [
+    "LXGWWenKaiMonoScreen-Regular.ttf",
+    "LXGWWenKaiMonoGBScreen-Regular.ttf",
+    "LXGWWenKaiGBScreen-Regular.ttf",
+    "LXGWWenKaiScreen-Regular.ttf",
+    "LXGWNeoZhiSongScreen-Regular.ttf",
+    "LXGWNeoXiHeiScreenFull-Regular.ttf",
+    "LXGWNeoZhiSongScreenFull-Regular.ttf",
+    "LXGWNeoXiHeiScreen-Regular.ttf",
     "LXGWWenKai-Regular.ttf",
     "LXGWWenKaiMono-Light.ttf",
     "LXGWWenKaiMono-Medium.ttf",
@@ -70,8 +70,8 @@ def main() -> None:
     write_profile(
         "落霞孤鹜字体合集（14款）.mobileconfig",
         "collection14-original-v2",
-        ORIGINAL_FONTS,
-        "落霞孤鹜字体合集（原版14款）",
+        COLLECTION_FONTS,
+        "落霞孤鹜字体合集（14款）",
         "org.silentperson.lxgw-original-v2",
     )
     write_profile(
