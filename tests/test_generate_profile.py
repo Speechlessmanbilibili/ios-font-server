@@ -51,6 +51,27 @@ class DiscoverFontsTests(unittest.TestCase):
             identifiers = [item["PayloadIdentifier"] for item in profile["PayloadContent"]]
             self.assertEqual(len(identifiers), len(set(identifiers)))
 
+    def test_profile_id_can_be_isolated_for_compatible_packages(self):
+        with tempfile.TemporaryDirectory() as temp:
+            font = Path(temp) / "Example-Regular.ttf"
+            font.write_bytes(b"font")
+
+            profile = plistlib.loads(make_profile(
+                "collection8",
+                [font],
+                "Word Regular compatible",
+                profile_id="org.silentperson.lxgw-word-regular-v2",
+            ))
+
+            self.assertEqual(
+                profile["PayloadIdentifier"],
+                "org.silentperson.lxgw-word-regular-v2.collection8",
+            )
+            self.assertEqual(
+                profile["PayloadContent"][0]["PayloadIdentifier"],
+                "org.silentperson.lxgw-word-regular-v2.font.Example-Regular",
+            )
+
 
 if __name__ == "__main__":
     unittest.main()

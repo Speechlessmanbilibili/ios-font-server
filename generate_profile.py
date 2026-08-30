@@ -89,14 +89,19 @@ def discover_fonts(dirs=None) -> list:
     return sorted(by_name.values(), key=lambda p: p.name)
 
 
-def make_profile(name: str, fonts: list, description: str) -> bytes:
+def make_profile(
+    name: str,
+    fonts: list,
+    description: str,
+    profile_id: str = PROFILE_ID,
+) -> bytes:
     """构建一个描述文件的二进制 plist 字节。Font 必须传原始字体字节！"""
     payloads = []
     for path in fonts:
         payloads.append({
             "PayloadType": "com.apple.font",
             "PayloadVersion": 1,
-            "PayloadIdentifier": f"{PROFILE_ID}.font.{path.stem}",
+            "PayloadIdentifier": f"{profile_id}.font.{path.stem}",
             "PayloadUUID": str(uuid.uuid4()),
             "PayloadDisplayName": display_name(path),
             # Name 是 com.apple.font 的必需键（字体文件名），缺失会被 iOS
@@ -111,7 +116,7 @@ def make_profile(name: str, fonts: list, description: str) -> bytes:
     profile = {
         "PayloadType": "Configuration",
         "PayloadVersion": 1,
-        "PayloadIdentifier": f"{PROFILE_ID}.{name}",
+        "PayloadIdentifier": f"{profile_id}.{name}",
         "PayloadUUID": str(uuid.uuid4()),
         "PayloadDisplayName": description,
         "PayloadDescription": description,
