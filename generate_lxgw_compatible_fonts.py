@@ -30,12 +30,12 @@ def make_compatible_font(source: Path, destination: Path) -> None:
     font = TTFont(source)
     names = font["name"]
 
-    # 直接更新每条既有记录，保留原平台、编码和语言。这样中文名及源字体中
-    # 可能存在的其他本地化名称不会被英文记录取代。
+    # 仿照上游已有的 LXGWWenKai-Regular：Family、Subfamily、Unique ID、
+    # Full Name 维持原样，仅给具体字形的 PostScript Name 添加 -Regular。
+    # Core Text 优先用 PostScript Name 创建字体，WordprocessingML 则继续按
+    # 原 primary family name 匹配文档中的字体引用。
     for record in names.names:
-        if record.nameID in (3, 4):
-            record.string = with_regular(record.toUnicode()).encode(record.getEncoding())
-        elif record.nameID == 6:
+        if record.nameID == 6:
             record.string = with_regular(
                 record.toUnicode(), separator="-"
             ).encode(record.getEncoding())
