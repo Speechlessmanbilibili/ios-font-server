@@ -7,6 +7,7 @@ from generate_profile import ROOT, make_profile
 
 FONT_DIR = ROOT / "fonts" / "lxgw-ios"
 OUT_DIR = ROOT / "profiles"
+EXTRA_FONT_DIR = ROOT / "fonts" / "lxgw-extra"
 
 COLLECTION_FONTS = [
     "LXGWWenKaiMonoScreen-Regular.ttf",
@@ -37,8 +38,8 @@ WORD_REGULAR_FONTS = [
 ]
 
 
-def require_fonts(names: list[str]) -> list[Path]:
-    fonts = [FONT_DIR / name for name in names]
+def require_fonts(names: list[str], source_dir: Path = FONT_DIR) -> list[Path]:
+    fonts = [source_dir / name for name in names]
     missing = [path.name for path in fonts if not path.is_file()]
     if missing:
         raise SystemExit(f"服务器字体副本不存在：{', '.join(missing)}")
@@ -51,10 +52,11 @@ def write_profile(
     font_names: list[str],
     description: str,
     profile_id: str,
+    source_dir: Path = FONT_DIR,
 ) -> None:
     data = make_profile(
         name,
-        require_fonts(font_names),
+        require_fonts(font_names, source_dir),
         description,
         profile_id=profile_id,
     )
@@ -67,6 +69,19 @@ def write_profile(
 
 def main() -> None:
     OUT_DIR.mkdir(parents=True, exist_ok=True)
+    extra = [EXTRA_FONT_DIR / name for name in (
+        "LXGWNeoXiHeiPlus.ttf", "LXGWNeoXiHei.ttf",
+        "LXGWNeoZhiSongPlus.ttf", "LXGWNeoZhiSong.ttf",
+    )]
+    if all(path.is_file() for path in extra):
+        write_profile(
+            "霞鹜新晰黑、霞鹜新致宋.mobileconfig",
+            "lxgw-xihei-zhisong-extra",
+            [path.name for path in extra],
+            "霞鹜新晰黑、霞鹜新致宋",
+            "org.silentperson.lxgw-xihei-zhisong-extra",
+            source_dir=EXTRA_FONT_DIR,
+        )
     write_profile(
         "落霞孤鹜字体合集（14款）.mobileconfig",
         "collection14-original-v2",
